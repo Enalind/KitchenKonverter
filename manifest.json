@@ -1,0 +1,35 @@
+{
+    "manifest_version": 3,
+    "name": "KitchenKonverter",
+    "version": "1.0",
+    "description": "This extention effortlessly converts between U.S units and metric, allowing you to take advantage of all recepies, no matter where you were born.",
+    "author": {
+        "name": "Elias Lindström",
+        "email": "enalindstrom@gmail.com"
+    },
+    "permissions": [
+        "storage"
+    ],
+    "icons": {
+        "16": "icon/16.png",
+        "32": "icon/32.png",
+        "48": "icon/48.png",
+        "128": "icon/128.png"
+      },
+    "content_scripts": [
+        {
+            "js": ["scripts/content_script.js"],
+            
+            "matches": [
+                "*://*/*"
+            ],
+            "exclude_matches": [
+                "https://google.com/*"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "index.html"
+    }
+    
+}

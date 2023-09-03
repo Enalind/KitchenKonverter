@@ -1,0 +1,2 @@
+# KitchenKonverter
+This is a chrome extention made for convertion between US and Metric units. It is built as a passion project to ease cooking with international cuisine. Contributions are very welcome.
