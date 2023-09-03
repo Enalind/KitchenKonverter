@@ -1,17 +1,18 @@
-var defaults = {
+// Default configuration values
+var defaultConfig = {
     "from": "us",
     "to": "metric",
     "type": "update"
 }
 
-const fromCheckbox = document.querySelector("#from")
-const toCheckbox = document.querySelector("#to")
-const commit = document.querySelector("#commit")
-const fromPortion = document.querySelector("#from-portion")
-const toPortion = document.querySelector("#to-portion")
-chrome.storage.onChanged.addListener(function(changes, namespace) { 
-    console.log(changes)
-})
+// DOM elements representing various UI components
+const fromCheckboxElement = document.querySelector("#from-checkbox");
+const toCheckboxElement = document.querySelector("#to-checkbox");
+const commitButton = document.querySelector("#commit-button");
+const fromPortionElement = document.querySelector("#from-portion");
+const toPortionElement = document.querySelector("#to-portion");
+
+
 
 const errorCatchingMessagePromise = (tab, message) => new Promise((resolve, reject) => {
     chrome.tabs.sendMessage(tab.id, message, (response) => {
@@ -28,59 +29,66 @@ async function sendMessageToActiveTab(message) {
     const responses = await Promise.all(tabs.map(tab => {
         return errorCatchingMessagePromise(tab, message).catch(e => console.log(`failed to send to tab with id ${tab.id} error: ${e.message}`))
     }));
-    console.log(responses);
-    // TODO: Do something with the response.
   }
 
-async function loadDefaults(e){
-    let settings = defaults
+// Async function to load default settings and update UI elements
+async function loadDefaults(event) {
+    // Initialize settings with default configuration
+    let settings = defaultConfig;
+
+    // Check if the "browser" object is defined for cross-browser compatibility
     if (typeof browser === "undefined") {
         var browser = chrome;
     }
-    const data = (await browser.storage.sync.get("data")).data
-    if(data != {}){
-        settings = data
+
+    // Retrieve data from browser storage and set it as "data"
+    const data = (await browser.storage.sync.get("data")).data;
+
+    // Check if "data" is not an empty object
+    if (Object.keys(data).length !== 0) {
+        settings = data;
     }
-    const from = data.from == "metric"
-    const to = data.to == "metric"
-    if(data.toPortion){
-        const toPortionData = data.toPortion
-        toPortion.value = toPortionData
+
+    // Determine the state of "from" and "to" checkboxes based on settings
+    const fromMetric = settings.from === "metric";
+    const toMetric = settings.to === "metric";
+
+    // Check if "toPortion" data is available and update the corresponding UI element
+    if (data.toPortion) {
+        const toPortionData = data.toPortion;
+        toPortionElement.value = toPortionData; // Assuming "toPortionElement" is defined
     }
-    
-    fromCheckbox.checked = from
-    toCheckbox.checked = to
+
+    // Update the state of the "from" and "to" checkboxes in the UI
+    fromCheckboxElement.checked = fromMetric; // Assuming "fromCheckboxElement" is defined
+    toCheckboxElement.checked = toMetric; // Assuming "toCheckboxElement" is defined
 }
 
 
-async function saveDefaults(e){
+// Async function to save user-selected defaults
+async function saveDefaults(event) {
+    // Create a submission object to store user-selected settings
     var submission = {
-        "from": fromCheckbox.checked ? "metric" : "us",
-        "to": toCheckbox.checked ?"metric": "us"
+        "from": fromCheckboxElement.checked ? "metric" : "us",
+        "to": toCheckboxElement.checked ? "metric" : "us"
+    };
+
+    // Check if both "fromPortion" and "toPortion" values are available
+    if (fromPortionElement.value && toPortionElement.value) {
+        // Calculate and add the "factor" property to the submission
+        submission["factor"] = (parseInt(toPortionElement.value) / parseInt(fromPortionElement.value)).toFixed(1);
+
+        // Add the "toPortion" property to the submission
+        submission["toPortion"] = parseInt(toPortionElement.value);
     }
-    if(fromPortion.value && toPortion.value){
-        submission["factor"] = (parseInt(toPortion.value)/parseInt(fromPortion.value)).toFixed(1)
-        submission["toPortion"] = parseInt(toPortion.value)
-    }
-    chrome.storage.sync.set({"data": submission})
-    defaults = submission
+
+    // Store the submission object in Chrome storage under the "data" key
+    chrome.storage.sync.set({"data": submission});
+
+    // Update the default configuration with the user-submitted values
+    defaultConfig = submission;
 }
 
-async function flipDefaults(e){
-    console.log(await chrome.storage.sync.get("data"))
-    
-    if (typeof browser === "undefined") {
-        var browser = chrome;
-    }
-    var data = {}
-    data.from = defaults.from == "us" ? "metric" : "us"
-    data.to = defaults.to == "metric" ? "us" : "metric"
-    data.type = "update"
-    console.log(data)
-    defaults = data
-    await sendMessageToActiveTab(data)
-
-}
 loadDefaults()
 
-commit.addEventListener("click", saveDefaults)
+commitButton.addEventListener("click", saveDefaults)
