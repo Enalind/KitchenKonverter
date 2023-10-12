@@ -1,12 +1,9 @@
 {
     "manifest_version": 3,
-    "name": "KitchenKonverter",
-    "version": "1.0",
-    "description": "This extention effortlessly converts between U.S units and metric, allowing you to take advantage of all recepies, no matter where you were born.",
-    "author": {
-        "name": "Elias Lindström",
-        "email": "enalindstrom@gmail.com"
-    },
+    "name": "KitchenKonverter2",
+    "version": "2.0",
+    "description": "This extension effortlessly converts between U.S. units and metric, allowing you to take advantage of all recipes.",
+    "author": "Elias Lindström",
     "permissions": [
         "storage"
     ],
@@ -18,7 +15,7 @@
       },
     "content_scripts": [
         {
-            "js": ["scripts/content_script.js"],
+            "js": ["scripts/dist/bundle.js"],
             
             "matches": [
                 "*://*/*"
@@ -28,8 +25,17 @@
             ]
         }
     ],
+    "web_accessible_resources": [{
+        "matches": ["<all_urls>"],
+        "resources": ["scripts/constants.json"]
+    }],
     "action": {
         "default_popup": "index.html"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+          "id": "enalindstrom@gmail.com"
+        }
     }
     
 }

@@ -1,0 +1,8 @@
+{
+    "bail": 1,
+    "verbose": true,
+    "testEnvironment": "jsdom",
+    "transform": {
+        "^.+\\.jsx?$": "babel-jest"
+    }
+}
