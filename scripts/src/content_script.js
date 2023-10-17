@@ -6,7 +6,7 @@ import { decimalToFractionLookup, commonUnicodeFractions } from "./constants";
 
 const fractionMatcherRegex = /([0-9])+([½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])/
 const singularFractionRegex = /([½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])/
-// 1½
+
 
 export function searchChildrenRecursively(childNode, node, matches, expression, matchList){
     let flag = false
@@ -32,7 +32,7 @@ export function searchChildrenRecursively(childNode, node, matches, expression, 
 }
 
 
-export function updateMatches(matchList, nonGlobalExpression, measureType, conversionData){
+export function updateMatches(matchList, nonGlobalExpression, measureType, measurementsData){
     for(const [node, matches] of matchList){
         for(let match of matches){
             match = match.match(nonGlobalExpression)
@@ -76,19 +76,21 @@ export function updateMatches(matchList, nonGlobalExpression, measureType, conve
                     convertedQuantity = parseFloat(numericPart)
                 }
 
-                conversions[measureType][conversionData.from].forEach(unit => {
+                conversions[measureType][measurementsData.from].forEach(unit => {
                     if(unitPart == unit["name"] | unit.abbr.includes(unitPart)){
                         convertedQuantity = convertedQuantity * unit.standard
+                        console.log(unit, convertedQuantity)
                     }
                 })
-                let [numericString, unitString] =  calculateUnitString(convertedQuantity, conversions[measureType].shared ? conversions[measureType][conversionData.to].concat(conversions[measureType].shared) : conversions[measureType][conversionData.to], decimalToFractionLookup);
+                
+                let [numericString, unitString] =  calculateUnitString(convertedQuantity, conversions[measureType].shared ? conversions[measureType][measurementsData.to].concat(conversions[measureType].shared) : conversions[measureType][measurementsData.to], decimalToFractionLookup);
                 if(numericNode.hasAttribute("kitchen-converted") || unitNode.hasAttribute("kitchen-converted")){
                     continue
                 }
                 if(numericNode == unitNode){
                     numericNode.setAttribute("kitchen-converted", "true")
                     const newString = match[1] + numericString + " " + unitString + contextPart
-                    
+                    console.log(newString, match[0])
                     node.innerHTML = node.innerHTML.replaceAll(match[0], newString)
                     
                 }
@@ -108,7 +110,6 @@ export function updateMatches(matchList, nonGlobalExpression, measureType, conve
 export function main(rootNode, language){
     var matchList = []
     for(const measurments of Object.keys(conversions)){
-        console.log(conversions[measurments][language])
         const globalExpression = conversions[measurments]["regex"][language][0]
         if(!globalExpression.test(rootNode.textContent)){
             continue

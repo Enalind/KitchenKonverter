@@ -26,8 +26,8 @@
   var conversions = {
     "volume": {
       "regex": {
-        "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i],
-        "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i]
+        "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i],
+        "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i]
       },
       "us": [
         {
@@ -215,7 +215,6 @@
     });
   }
   function calculateUnitString(measureValue, unitList, decimalToFractionLookup2) {
-    console.log(unitList);
     sortByKey(unitList, "standard");
     for (const unit of unitList) {
       if (measureValue > 0.5 * unit.standard) {
@@ -303,6 +302,7 @@
           conversions[measureType][conversionData.from].forEach((unit) => {
             if (unitPart == unit["name"] | unit.abbr.includes(unitPart)) {
               convertedQuantity = convertedQuantity * unit.standard;
+              console.log(unit, convertedQuantity);
             }
           });
           let [numericString, unitString] = calculateUnitString(convertedQuantity, conversions[measureType].shared ? conversions[measureType][conversionData.to].concat(conversions[measureType].shared) : conversions[measureType][conversionData.to], decimalToFractionLookup);
@@ -312,6 +312,7 @@
           if (numericNode == unitNode) {
             numericNode.setAttribute("kitchen-converted", "true");
             const newString = match[1] + numericString + " " + unitString + contextPart;
+            console.log(newString, match[0]);
             node.innerHTML = node.innerHTML.replaceAll(match[0], newString);
           } else {
             numericNode.innerHTML = numericNode.innerHTML.replaceAll(numericPart, numericString);
@@ -327,7 +328,6 @@
   function main(rootNode, language) {
     var matchList = [];
     for (const measurments of Object.keys(conversions)) {
-      console.log(conversions[measurments][language]);
       const globalExpression = conversions[measurments]["regex"][language][0];
       if (!globalExpression.test(rootNode.textContent)) {
         continue;

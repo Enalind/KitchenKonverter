@@ -30,12 +30,13 @@ describe("Main functionality", () => {
     })
     test("Updating children", () => {
         
-        document.body.innerHTML = `<h1><p>2 cups milk</p><div>1/3 cups flour</div></h1>`
-        let matchList = [[document.querySelector("p"), ["2 cups milk"]],[document.querySelector("div"), ["1/3 cups flour"]]]
-        expect(updateMatches(matchList)).toEqual("<h1><p kitchen-converted=\"true\">4 and 2/3 dls milk</p><div kitchen-converted=\"true\">3/4 dl flour</div></h1>")
+        document.body.innerHTML = `<h1><p>2 dl milk</p><div>1/3 dl flour</div></h1>`
+        let matchList = [[document.querySelector("p"), ["2 dl milk"]],[document.querySelector("div"), ["1/3 dl flour"]]]
+        expect(updateMatches(matchList, conversions.volume.regex.metric[1], "volume", {"from": "metric", "to": "us"})).toEqual("<h1><p kitchen-converted=\"true\">3/4 cup milk</p><div kitchen-converted=\"true\">1 and 1/10 fl ozs flour</div></h1>")
+        
         document.body.innerHTML = `<div><h1>1</h1><p>cups</p></div>`
         matchList = [[document.querySelector("div"), ["1cups"]]]
-        expect(updateMatches(matchList)).toEqual("<div><h1 kitchen-converted=\"true\">2 and 2/5</h1><p kitchen-converted=\"true\">dlss</p></div>")
+        expect(updateMatches(matchList, conversions.volume.regex.us[1], "volume", {"from": "us", "to": "metric"})).toEqual("<div><h1 kitchen-converted=\"true\">2 and 2/5</h1><p kitchen-converted=\"true\">dls</p></div>")
 
         document.body.innerHTML = `<div><strong>optional: </strong> 1 cup</div>`
         matchList = [[document.querySelector("div"), [" 1 cup"]]]

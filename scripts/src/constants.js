@@ -24,8 +24,8 @@ export const commonUnicodeFractions = {
 export const conversions = {
     "volume": {
         "regex": {
-            "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i],
-            "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i]
+            "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal)s?([^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)s?([^\n]{0,10})/i],
+            "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l)s?([^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)s?([^\n]{0,10})/i]
         },
         "us": [
             {
@@ -107,8 +107,8 @@ export const conversions = {
     },
     "weight": {
         "regex": {
-            "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/i],
-            "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/i]
+            "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(ounce|oz|pound|lb)s?([^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/i],
+            "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(gram|g|kilogram|kg)s?([^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/i]
         },
         "us": [
             {
@@ -145,8 +145,8 @@ export const conversions = {
     },
     "temperature": {
         "regex": {
-            "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(farenheit|f)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(farenheit|f)(s?[^\n]{0,10})/i],
-            "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(celsius|c|centigrade)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(celsius|c|centigrade)(s?[^\n]{0,10})/i]
+            "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(farenheit|f)s?([^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(farenheit|f)(s?[^\n]{0,10})/i],
+            "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(celsius|c|centigrade)s?([^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(celsius|c|centigrade)(s?[^\n]{0,10})/i]
         },
         "us": [
             {

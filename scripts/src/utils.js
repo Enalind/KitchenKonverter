@@ -35,7 +35,7 @@ export function sortByKey(array, key) {
 }
 export function calculateUnitString(measureValue, unitList, decimalToFractionLookup) {
         // Sort the unitList by the "standard" property
-        console.log(unitList)
+        
         sortByKey(unitList, "standard");
     
         for (const unit of unitList) {
