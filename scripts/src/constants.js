@@ -1,8 +1,8 @@
 function celsiusToFarenheit(celsius){
-    return (celsius * 1.8 + 32).toFixed(1)
+    return (celsius * 1.8 + 32).toFixed(0)
 }
 function farenheitToCelsius(farenheit){
-    return (0.55 * (farenheit - 32)).toFixed(1)
+    return (0.55 * (farenheit - 32)).toFixed(0)
 }
 export const commonUnicodeFractions = {
     "½": "1/2",
@@ -21,11 +21,13 @@ export const commonUnicodeFractions = {
     "⅝": "5/8",
     "⅞": "7/8",
 }
+export const fractionMatcherRegex = /([0-9])+([½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])/
+export const singularFractionRegex = /([½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])/
 export const conversions = {
     "volume": {
         "regex": {
-            "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i],
-            "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i]
+            "us": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i],
+            "metric": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i]
         },
         "us": [
             {
@@ -46,7 +48,8 @@ export const conversions = {
             {
                 "name": "quart",
                 "abbr": [
-                    "qt."
+                    "qt.",
+                    "qt"
                 ],
                 "standard": 946
             },
@@ -107,8 +110,8 @@ export const conversions = {
     },
     "weight": {
         "regex": {
-            "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/i],
-            "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/i]
+            "us": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/i],
+            "metric": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/i]
         },
         "us": [
             {
@@ -145,8 +148,8 @@ export const conversions = {
     },
     "temperature": {
         "regex": {
-            "us": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(farenheit|f)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(farenheit|f)(s?[^\n]{0,10})/i],
-            "metric": [/(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(celsius|c|centigrade)(s?[^\n]{0,10})/gi, /(\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand)*(?:[0-9/]*)\s*(celsius|c|centigrade)(s?[^\n]{0,10})/i]
+            "us": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(farenheit|f)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(farenheit|f)(s?[^\n]{0,10})/i],
+            "metric": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(celsius|c|centigrade)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(celsius|c|centigrade)(s?[^\n]{0,10})/i]
         },
         "us": [
             {
@@ -154,9 +157,7 @@ export const conversions = {
                 "abbr": [
                     "f"
                 ],
-                "conversionFunction": {
-                  "metric": celsiusToFarenheit
-                }
+                "conversionFunction": celsiusToFarenheit
             }
         ],
         "metric": [
@@ -166,9 +167,7 @@ export const conversions = {
                     "c",
                     "centigrade"
                 ],
-                "conversionFunction": {
-                  "us": farenheitToCelsius
-                }
+                "conversionFunction": farenheitToCelsius
             }
         ]
     }
