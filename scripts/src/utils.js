@@ -1,19 +1,16 @@
 
 export function decimalToFraction(decimalValue, unit, decimalToFractionLookup) {
-    // Calculate the fractional and whole parts
-    
     let fractionalPart = decimalValue % 1;
     const wholePart = parseInt(decimalValue - fractionalPart);
-
-    // Convert the fractional part to a lookup key (rounded to one decimal place)
+    // Calculate the fractional and whole parts
+    if(fractionalPart === 0){
+        if(decimalValue > 1){return [parseInt(decimalValue), unit + "s"]}
+        else{return [parseInt(decimalValue), unit]}
+    }
     fractionalPart = fractionalPart.toFixed(1);
     fractionalPart = decimalToFractionLookup[fractionalPart];
-    // Handle special cases when decimalValue is 1
-    if (decimalValue === 1) {
-        return "1 " + unit;
-    }
-
-    // Handle cases when decimalValue is greater than 1
+    // Convert the fractional part to a lookup key (rounded to one decimal place)
+    
     if (decimalValue > 1) {
         if (fractionalPart === 0 || fractionalPart === undefined) {
             const unitPart = unit + "s"
@@ -23,9 +20,9 @@ export function decimalToFraction(decimalValue, unit, decimalToFractionLookup) {
         const unitPart = unit + "s"
         return [numericPart, unitPart];
     }
-
-    // Handle cases when decimalValue is less than 1
+    // Handle cases when decimalValue is greater than 1
     return [fractionalPart, unit];
+    // Handle cases when decimalValue is less than or equal to 1
 }
 export function sortByKey(array, key) {
     return array.sort(function(a, b) {
@@ -34,33 +31,33 @@ export function sortByKey(array, key) {
     });
 }
 export function calculateUnitString(measureValue, unitList, decimalToFractionLookup) {
-        // Sort the unitList by the "standard" property
-        
         sortByKey(unitList, "standard");
-    
+        // Sort the unitList by the "standard" property
         for (const unit of unitList) {
-            // Check if the measureValue is greater than half of the unit's standard value
             if (measureValue > 0.5 * unit.standard) {
+                // Check if the measureValue is greater than half of the unit's standard value
                 const measureFraction = (measureValue / unit.standard).toFixed(1);
                 const unitAbbreviation = unit.abbr[0];
                 return decimalToFraction(measureFraction, unitAbbreviation, decimalToFractionLookup);
             }
         }
     
-        // If none of the units in unitList match, use the smallest unit
         const smallestUnit = unitList[unitList.length - 1];
         const measureFraction = (smallestUnit.standard / measureValue).toFixed(1);
         const unitAbbreviation = smallestUnit.abbr[0];
         return decimalToFraction(measureFraction, unitAbbreviation, decimalToFractionLookup);
+        // If none of the units in unitList match, use the smallest unit
 }
-export function checkForMissingItems(node, matches, expression, matchList){
+export function checkForMissingItems(matches, matchList){
     let concatMatchList = []
     matchList.forEach(element => concatMatchList.push(...element[1]))
+    //Pile all matches onto a list of strings
     let crossReferencedMatchList = []
     matches?.forEach(element => {
         if(concatMatchList.map(ele => ele.trim() == element.trim()).every(v => v === false) && !concatMatchList.join("").includes(element)){
             crossReferencedMatchList.push(element)
         }
     })
+    //Check if all matches are accounted for, if not add them to the returned matchList
     return crossReferencedMatchList
 }
