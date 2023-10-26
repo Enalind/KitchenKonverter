@@ -7,8 +7,9 @@ import { searchChildrenRecursively, updateMatches } from '../src/content_script'
 function setupDOMForSearch(innerHTML, language, measureType){
     document.body.innerHTML = innerHTML
     const globalExpression = conversions[measureType]["regex"][language][0]
+    const nonGlobalExpression = conversions[measureType]["regex"][language][1]
     var matchList = []
-    searchChildrenRecursively(document.body, null, null, globalExpression, matchList)
+    searchChildrenRecursively(document.body, null, null, globalExpression, nonGlobalExpression, matchList)
     return matchList
 }
 describe("Searching US", () => {

@@ -4,6 +4,12 @@ function celsiusToFarenheit(celsius){
 function farenheitToCelsius(farenheit){
     return (0.55 * (farenheit - 32)).toFixed(0)
 }
+export const defaultConfig = {
+    "from": "us",
+    "to": "metric"
+}
+
+
 export const commonUnicodeFractions = {
     "½": "1/2",
     "¼": "1/4",
@@ -40,9 +46,7 @@ export const conversions = {
             },
             {
                 "name": "cup",
-                "abbr": [
-                  "cup"
-                ],
+                "abbr": [],
                 "standard": 237
             },
             {

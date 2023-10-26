@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "content_script.js",
+  "type": "module",
   "scripts": {
     "build": "esbuild src/content_script.js --bundle --target=chrome117,firefox117,edge117,opera102 --outfile=dist/bundle.js --watch",
     "test": "jest"

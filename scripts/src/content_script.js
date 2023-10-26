@@ -1,22 +1,23 @@
 
 
 import { conversions } from "./constants";
-import { checkForMissingItems, calculateUnitString } from "./utils";
-import { decimalToFractionLookup, commonUnicodeFractions, fractionMatcherRegex, singularFractionRegex} from "./constants";
+import { checkForMissingItems, calculateUnitString, getStorageData } from "./utils";
+import { decimalToFractionLookup, commonUnicodeFractions, fractionMatcherRegex, singularFractionRegex, defaultConfig} from "./constants";
 
 
+// Check this out on why regex is dumb if it is global https://dev.to/dvddpl/why-is-my-regex-working-intermittently-4f4g
 
-
-export function searchChildrenRecursively(childNode, node, matches, expression, matchList){
+export function searchChildrenRecursively(childNode, node, matches, expression, nonGlobalRegex, matchList){
     let isNotRemaining = false
     for(const grandchild of childNode.children){
         if(grandchild.tagName == "SCRIPT" || !grandchild.textContent){continue;}
         //If the grandchild is a script tag, skip it
-        if(expression.test(grandchild.textContent)){
+        const testable = grandchild.textContent
+        if(nonGlobalRegex.test(testable)){
             //Check if expression matches the regex
             const grandchildMatches = grandchild.textContent.match(expression)
             //Isolate the matched regex
-            searchChildrenRecursively(grandchild, childNode, grandchildMatches, expression, matchList)
+            searchChildrenRecursively(grandchild, childNode, grandchildMatches, expression, nonGlobalRegex, matchList)
             //Recursively search the next node
             isNotRemaining = true
             //Since only the deepest node is relevant, this flag makes it so that the previous recursions are ignored
@@ -32,6 +33,32 @@ export function searchChildrenRecursively(childNode, node, matches, expression, 
        
         matchList.push([childNode, remainingMatchList])
         //If so add them to the list
+    }
+}
+
+function getDirectlyContainedText(node){
+    return Array.prototype.filter
+    .call(node.childNodes, (child) => child.nodeType === Node.TEXT_NODE)
+    .map((child) => child.textContent)
+    .join('')
+}
+
+export function searchAlternative(childNode, node, matches, expression, nonGlobalRegex, matchList){
+    const stack = [node]
+    const visited = new Set()
+    const result = []
+
+    while (stack.length){
+        const vertex = stack.pop()
+        if(!visited.has(vertex)){
+            visited.add(vertex)
+            const directlyContainedText = getDirectlyContainedText(vertex)
+            if(nonGlobalRegex.test(directlyContainedText)){
+                matchList.push([vertex, directlyContainedText.match(expression)])
+            }
+            stack.push(...vertex.children)
+        }
+        // push children to stack https://hackernoon.com/a-beginners-guide-to-bfs-and-dfs-in-javascript
     }
 }
 
@@ -97,7 +124,7 @@ export function updateMatches(matchList, unitFindRegex, measureType, languageInf
                 if(measureType != "temperature"){
                     var unitFound = false
                     conversions[measureType][languageInfo.from].forEach(unit => {
-                        if(unitPart == unit["name"] | unit.abbr.includes(unitPart)){
+                        if(unitPart == unit["name"] | unit.abbr.includes(unitPart) && !unitFound){
                             unitFound = true
                             convertedQuantity = convertedQuantity * unit.standard
                         }
@@ -120,13 +147,13 @@ export function updateMatches(matchList, unitFindRegex, measureType, languageInf
                     unitString = result[1]
                 }
                 //Take the quantity and convert it to two strings (one numeric and one unit) in the system of choice
-                if(numericNode.hasAttribute("kitchen-converted") || unitNode.hasAttribute("kitchen-converted")){
+                if(numericNode.getAttribute("kitchen-converted")?.includes(contextPart) || unitNode.getAttribute("kitchen-converted")?.includes(contextPart)){
                     continue
                 }
                 //Check if the node has already been visited
                 if(numericNode == unitNode){
                     //Check if the root node specified in the matchList was indeed the lowest
-                    numericNode.setAttribute("kitchen-converted", "true")
+                    numericNode.setAttribute("kitchen-converted", contextPart)
                     //Mark the node as visited
                     const newString = match[1] + numericString + " " + unitString + contextPart
                     node.innerHTML = node.innerHTML.replaceAll(match[0], newString)
@@ -137,8 +164,8 @@ export function updateMatches(matchList, unitFindRegex, measureType, languageInf
                     numericNode.innerHTML = numericNode.innerHTML.replaceAll(numericPart, numericString)
                     unitNode.innerHTML = unitNode.innerHTML.replaceAll(unitPart, unitString)
                     //Replace the unit and numeric parts respectively
-                    numericNode.setAttribute("kitchen-converted", "true")
-                    unitNode.setAttribute("kitchen-converted", "true")
+                    numericNode.setAttribute("kitchen-converted", contextPart)
+                    unitNode.setAttribute("kitchen-converted", contextPart)
                     //Mark both as visited
                 }
             }
@@ -147,58 +174,41 @@ export function updateMatches(matchList, unitFindRegex, measureType, languageInf
     }
     return document.body.innerHTML
 }
-export function main(rootNode, language){
-    var matchList = []
+export async function main(rootNode, reciveData){
+    var data = await reciveData;
+    if (Object.keys(data).length === 0) {
+        data = defaultConfig;
+    } 
+    else {
+        data = data.data;
+    }
+    
+    
     for(const measurments of Object.keys(conversions)){
+        var matchList = []
         //Iterate through the measurments like volume and weight
-        const globalExpression = conversions[measurments]["regex"][language][0]
+        const globalExpression = conversions[measurments]["regex"][data.from][0]
+        const nonGlobalExpression = conversions[measurments]["regex"][data.from][1]
         if(!globalExpression.test(rootNode.textContent)){
             continue
         }
         //If the body does not contain any matches, halt execution
-        searchChildrenRecursively(rootNode, null, null, globalExpression, matchList)
+        searchChildrenRecursively(rootNode, null, null, globalExpression, nonGlobalExpression, matchList)
         //Begin the recursive search at the root node, often the body
-        const data = {
-            "from": "us",
-            "to": "metric"
-        }
+        console.log(matchList, measurments, globalExpression, rootNode.textContent)
+        // console.log([...rootNode.textContent.matchAll(globalExpression)])
         //Initialize dummy data
-        updateMatches(matchList, conversions[measurments]["regex"][language][1], measurments, data)
+        updateMatches(matchList, nonGlobalExpression, measurments, data)
         //Update the matches found in the search
     }
 }
-
-function generateRegexes(){
-    var usVolumeList = []
-    var metricVolumeList = []
-    for(const quantity of Object.keys(conversions)){
-        if(quantity != "volume"){continue;}
-        for(const language of Object.keys(conversions[quantity])){
-            for(const unit of Object.keys(conversions[quantity][language])){
-                if(language == "us"){
-                    usVolumeList = usVolumeList.concat([conversions[quantity][language][unit]["name"]].concat(conversions[quantity][language][unit]["abbr"]))
-                }
-                else if(language == "metric"){
-                    metricVolumeList = metricVolumeList.concat([conversions[quantity][language][unit]["name"]].concat(conversions[quantity][language][unit]["abbr"]))
-                }
-                else if(language == "shared"){
-                    metricVolumeList = metricVolumeList.concat([conversions[quantity][language][unit]["name"]].concat(conversions[quantity][language][unit]["abbr"]))
-                    usVolumeList = usVolumeList.concat([conversions[quantity][language][unit]["name"]].concat(conversions[quantity][language][unit]["abbr"]))
-                }
-            }
-        }
+if(typeof process === "undefined"){
+    if(typeof browser === "undefined"){
+        chrome.storage.onChanged.addListener(() => location.reload())
     }
-    var usVolumeRegex = "/(\\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\\sand\\s)*(?:[0-9/]*)\\s*("
-    metricVolumeList.forEach(volume => {
-        usVolumeRegex = usVolumeRegex + "|" + volume
-    })
-    usVolumeRegex = usVolumeRegex + ")(s?[^\\n]{0,10})/gi"
-    var metricVolumeRegex = "/(\\s*)([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\\sand\\s)*(?:[0-9/]*)\\s*("
-    metricVolumeList.forEach(volume => {
-        metricVolumeRegex = metricVolumeRegex + "|" + volume
-    })
-    metricVolumeRegex = metricVolumeRegex + ")(s?[^\\n]{0,10})/gi"
-    console.log(usVolumeRegex, metricVolumeRegex)
+    else{
+        browser.storage.onChanged.addListener(() => location.reload())
+    }
+    main(document.querySelector("body"), getStorageData("data"))
 }
 
-main(document.querySelector("body"), "us")
