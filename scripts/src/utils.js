@@ -57,19 +57,6 @@ export function calculateUnitString(measureValue, unitList, decimalToFractionLoo
         return decimalToFraction(measureFraction, smallestUnit.name, decimalToFractionLookup, false);
         // If none of the units in unitList match, use the smallest unit
 }
-export function checkForMissingItems(matches, matchList){
-    let concatMatchList = []
-    matchList.forEach(element => concatMatchList.push(...element[1]))
-    //Pile all matches onto a list of strings
-    let crossReferencedMatchList = []
-    matches?.forEach(element => {
-        if(concatMatchList.map(ele => ele.trim() == element.trim()).every(v => v === false) && !concatMatchList.join("").includes(element)){
-            crossReferencedMatchList.push(element)
-        }
-    })
-    //Check if all matches are accounted for, if not add them to the returned matchList
-    return crossReferencedMatchList
-}
 
 export function generateRegexes(){
     var usVolumeList = []
@@ -102,4 +89,11 @@ export function generateRegexes(){
     })
     metricVolumeRegex = metricVolumeRegex + ")(s?[^\\n]{0,10})/gi"
     console.log(usVolumeRegex, metricVolumeRegex)
+}
+
+export function getDirectlyContainedText(node){
+    return Array.prototype.filter
+    .call(node.childNodes, (child) => child.nodeType === Node.TEXT_NODE)
+    .map((child) => child.textContent)
+    .join('')
 }

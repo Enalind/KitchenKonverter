@@ -1,7 +1,7 @@
 import {expect, jest, test, describe} from '@jest/globals';
 import { decimalToFraction, calculateUnitString } from '../src/utils';
 import { decimalToFractionLookup, conversions } from '../src/constants';
-import { searchChildrenRecursively, updateMatches } from '../src/content_script';
+import { searchForSplitNodes, updateMatches } from '../src/content_script';
 
 
 function setupDOMForSearch(innerHTML, language, measureType){
@@ -9,7 +9,7 @@ function setupDOMForSearch(innerHTML, language, measureType){
     const globalExpression = conversions[measureType]["regex"][language][0]
     const nonGlobalExpression = conversions[measureType]["regex"][language][1]
     var matchList = []
-    searchChildrenRecursively(document.body, null, null, globalExpression, nonGlobalExpression, matchList)
+    searchForSplitNodes(document.body, null, null, globalExpression, nonGlobalExpression, matchList)
     return matchList
 }
 describe("Searching US", () => {
@@ -25,5 +25,17 @@ describe("Searching US", () => {
     test("Floating point strings with comma and dot", () => {
         expect(setupDOMForSearch(`<h1>1.5 cup</h1>`, "us", "volume")).toEqual([[document.querySelector("h1"), ["1.5 cup"]]])
         expect(setupDOMForSearch(`<h1>1,5 cup</h1>`, "us", "volume")).toEqual([[document.querySelector("h1"), ["1,5 cup"]]])
+    })
+})
+describe("Searching Metric", () => {
+    test("Contained within separate nodes", () => {
+        expect(setupDOMForSearch(`<h1>1 dl</h1>`, "metric", "volume")).toEqual([[document.querySelector("h1"), ["1 dl"]]])
+    })
+    test("Contained within multiple nodes", () => {
+        expect(setupDOMForSearch(`<div><h1>1</h1><p>cl</p></div>`, "metric", "volume")).toEqual([[document.querySelector("div"), ["1cl"]]])
+    })
+    test("Floating point strings with comma and dot", () => {
+        expect(setupDOMForSearch(`<h1>1.5 ml</h1>`, "metric", "volume")).toEqual([[document.querySelector("h1"), ["1.5 ml"]]])
+        expect(setupDOMForSearch(`<h1>1,5 ml</h1>`, "metric", "volume")).toEqual([[document.querySelector("h1"), ["1,5 ml"]]])
     })
 })

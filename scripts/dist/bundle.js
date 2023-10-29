@@ -27,13 +27,14 @@
     "\u215D": "5/8",
     "\u215E": "7/8"
   };
+  var slashFractionMatcherRegex = /([0-9])+\s([0-9]\/[0-9])/;
   var fractionMatcherRegex = /([0-9])+([½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])/;
   var singularFractionRegex = /([½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])/;
   var conversions2 = {
     "volume": {
       "regex": {
-        "us": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt.|gallon|gal|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i],
-        "metric": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l|teaspoon|tsp|tablespoon|tbsp)(s?[^\n]{0,10})/i]
+        "us": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt\.|gallon|gal)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(fluid ounce|fl oz|fl. oz|cup|cup|quart|qt\.|gallon|gal)(s?[^\n]{0,10})/i],
+        "metric": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(milliliter|ml|centiliter|cl|deciliter|dl|liter|l)(s?[^\n]{0,10})/i]
       },
       "us": [
         {
@@ -114,8 +115,8 @@
     },
     "weight": {
       "regex": {
-        "us": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/i],
-        "metric": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/i]
+        "us": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(ounce|oz|pound|lb)(s?[^\n]{0,10})/i],
+        "metric": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(gram|g|kilogram|kg)(s?[^\n]{0,10})/i]
       },
       "us": [
         {
@@ -152,14 +153,15 @@
     },
     "temperature": {
       "regex": {
-        "us": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(farenheit|f)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(farenheit|f)(s?[^\n]{0,10})/i],
-        "metric": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(celsius|c|centigrade)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*(?:[0-9/\.\,]*))\s*(celsius|c|centigrade)(s?[^\n]{0,10})/i]
+        "us": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(farenheit|f|°f)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(farenheit|f|°f)(s?[^\n]{0,10})/i],
+        "metric": [/(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(celsius|c|centigrade|°c)(s?[^\n]{0,10})/gi, /(\s*)(([0-9/½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)(?:\sand\s)*\s*(?:[0-9/\.\,]*))\s*(celsius|c|centigrade|°c)(s?[^\n]{0,10})/i]
       },
       "us": [
         {
           "name": "farenheit",
           "abbr": [
-            "f"
+            "f",
+            "\xB0f"
           ],
           "conversionFunction": celsiusToFarenheit
         }
@@ -169,7 +171,8 @@
           "name": "celsius",
           "abbr": [
             "c",
-            "centigrade"
+            "centigrade",
+            "\xB0c"
           ],
           "conversionFunction": farenheitToCelsius
         }
@@ -243,42 +246,52 @@
     }
     return decimalToFraction(measureFraction, smallestUnit.name, decimalToFractionLookup2, false);
   }
-  function checkForMissingItems(matches, matchList) {
-    let concatMatchList = [];
-    matchList.forEach((element) => concatMatchList.push(...element[1]));
-    let crossReferencedMatchList = [];
-    matches?.forEach((element) => {
-      if (concatMatchList.map((ele) => ele.trim() == element.trim()).every((v) => v === false) && !concatMatchList.join("").includes(element)) {
-        crossReferencedMatchList.push(element);
-      }
-    });
-    return crossReferencedMatchList;
+  function getDirectlyContainedText(node) {
+    return Array.prototype.filter.call(node.childNodes, (child) => child.nodeType === Node.TEXT_NODE).map((child) => child.textContent).join("");
   }
 
   // src/content_script.js
-  function searchChildrenRecursively(childNode, node, matches, expression, nonGlobalRegex, matchList) {
+  function searchForSplitNodes(childNode, node, matches, expression, nonGlobalRegex, matchList) {
     let isNotRemaining = false;
     for (const grandchild of childNode.children) {
-      if (grandchild.tagName == "SCRIPT" || !grandchild.textContent) {
+      if (grandchild.tagName == "SCRIPT" | grandchild.tagName == "STYLE" | !grandchild.textContent) {
         continue;
       }
       const testable = grandchild.textContent;
       if (nonGlobalRegex.test(testable)) {
         const grandchildMatches = grandchild.textContent.match(expression);
-        searchChildrenRecursively(grandchild, childNode, grandchildMatches, expression, nonGlobalRegex, matchList);
+        searchForSplitNodes(grandchild, childNode, grandchildMatches, expression, nonGlobalRegex, matchList);
         isNotRemaining = true;
       }
     }
     if (node != null && !isNotRemaining) {
       matchList.push([childNode, matches]);
     }
-    const remainingMatchList = checkForMissingItems(matches, matchList);
-    if (node != null && remainingMatchList.length > 0) {
-      matchList.push([childNode, remainingMatchList]);
+  }
+  function depthFirstSearch(node, expression, nonGlobalRegex, matchList) {
+    const stack = [node];
+    const visited = /* @__PURE__ */ new Set();
+    while (stack.length) {
+      const vertex = stack.pop();
+      if (!visited.has(vertex)) {
+        visited.add(vertex);
+        const directlyContainedText = getDirectlyContainedText(vertex);
+        if (nonGlobalRegex.test(directlyContainedText) && vertex.tagName != "SCRIPT" && vertex.tagName != "STYLE") {
+          if (vertex.previousSibling != null) {
+            const prevSiblingText = getDirectlyContainedText(vertex.previousSibling);
+            if (nonGlobalRegex.test(directlyContainedText + prevSiblingText) && prevSiblingText != "" && prevSiblingText != " ") {
+              matchList.push([vertex, (prevSiblingText + directlyContainedText).match(expression), directlyContainedText]);
+            }
+          } else {
+            matchList.push([vertex, directlyContainedText.match(expression)]);
+          }
+        }
+        stack.push(...vertex.children);
+      }
     }
   }
   function updateMatches(matchList, unitFindRegex, measureType, languageInfo) {
-    for (const [node, matches] of matchList) {
+    for (const [node, matches, splitNodeText] of matchList) {
       for (let match of matches) {
         match = match.match(unitFindRegex);
         if (match[2]) {
@@ -291,23 +304,32 @@
             continue;
           }
           for (const child of node.children) {
-            if (child.textContent?.includes(unitPart + contextPart) && unitNode == node) {
+            if (child.textContent?.includes(unitPart) && unitNode == node) {
               unitNode = child;
             }
           }
           for (const child of node.children) {
-            if (child.textContent?.includes(numericPart) && numericNode == node) {
+            if (child.textContent?.includes(numericPart.replace(" ", "")) && numericNode == node) {
               numericNode = child;
             } else if (numericNode != node && child.nextElementSibling == unitNode) {
               numericNode = child;
             }
           }
+          if (numericNode.tagName == "SCRIPT" || numericNode.tagName == "STYLE" || unitNode.tagName == "SCRIPT" || unitNode.tagName == "STYLE") {
+            continue;
+          }
+          var isSlashFractionMatched = false;
           var convertedQuantity = 0;
           if (numericPart.includes("and")) {
             convertedQuantity += parseFloat(numericPart);
             numericPart.replace(numericPart + " and ", "");
           }
-          if (numericPart.includes("/")) {
+          if (slashFractionMatcherRegex.test(numericPart)) {
+            isSlashFractionMatched = true;
+            const slashFractionMatch = numericPart.match(slashFractionMatcherRegex);
+            convertedQuantity += parseFloat(slashFractionMatch[1]);
+            convertedQuantity += parseFloat(slashFractionMatch[2].split("/")[0]) / parseFloat(slashFractionMatch[2].split("/")[1]);
+          } else if (numericPart.includes("/")) {
             convertedQuantity += parseFloat(numericPart.split("/")[0]) / parseFloat(numericPart.split("/")[1]);
           } else if (fractionMatcherRegex.test(numericPart)) {
             const fractionMatch = numericPart.match(fractionMatcherRegex);
@@ -320,16 +342,21 @@
           } else {
             convertedQuantity += parseFloat(numericPart.replace(",", "."));
           }
+          if (!isSlashFractionMatched) {
+            numericPart = numericPart.replaceAll(" ", "");
+          }
           if (measureType != "temperature") {
             var unitFound = false;
             conversions2[measureType][languageInfo.from].forEach((unit) => {
-              if (unitPart == unit["name"] | unit.abbr.includes(unitPart) && !unitFound) {
+              if (unitPart.toLowerCase().replace(" ", "") == unit["name"] | unit.abbr.includes(unitPart.toLowerCase()) && !unitFound) {
                 unitFound = true;
                 convertedQuantity = convertedQuantity * unit.standard;
               }
             });
             if (!unitFound) {
               console.log("unit not found");
+              debugger;
+              continue;
             }
           }
           var numericString;
@@ -343,18 +370,19 @@
             numericString = result[0];
             unitString = result[1];
           }
-          if (numericNode.getAttribute("kitchen-converted")?.includes(contextPart) || unitNode.getAttribute("kitchen-converted")?.includes(contextPart)) {
-            continue;
-          }
-          if (numericNode == unitNode) {
-            numericNode.setAttribute("kitchen-converted", contextPart);
+          if (splitNodeText) {
+            node.previousSibling.textContent = numericString;
+            node.innerHTML = node.innerHTML.replaceAll(splitNodeText, unitString);
+          } else if (numericNode == unitNode) {
             const newString = match[1] + numericString + " " + unitString + contextPart;
             node.innerHTML = node.innerHTML.replaceAll(match[0], newString);
           } else {
-            numericNode.innerHTML = numericNode.innerHTML.replaceAll(numericPart, numericString);
-            unitNode.innerHTML = unitNode.innerHTML.replaceAll(unitPart, unitString);
-            numericNode.setAttribute("kitchen-converted", contextPart);
-            unitNode.setAttribute("kitchen-converted", contextPart);
+            unitNode.textContent = unitNode.textContent.replaceAll(unitPart, unitString);
+            if (isSlashFractionMatched) {
+              numericNode.innerHTML = numericNode.innerHTML.replaceAll(numericPart, numericString);
+            } else {
+              numericNode.innerHTML = numericNode.innerHTML.replaceAll(numericPart, numericString + " ");
+            }
           }
         }
       }
@@ -375,8 +403,10 @@
       if (!globalExpression.test(rootNode.textContent)) {
         continue;
       }
-      searchChildrenRecursively(rootNode, null, null, globalExpression, nonGlobalExpression, matchList);
-      console.log(matchList, measurments, globalExpression, rootNode.textContent);
+      depthFirstSearch(rootNode, globalExpression, nonGlobalExpression, matchList);
+      updateMatches(matchList, nonGlobalExpression, measurments, data);
+      matchList = [];
+      searchForSplitNodes(rootNode, null, null, globalExpression, nonGlobalExpression, matchList);
       updateMatches(matchList, nonGlobalExpression, measurments, data);
     }
   }
@@ -386,6 +416,6 @@
     } else {
       browser.storage.onChanged.addListener(() => location.reload());
     }
-    main(document.querySelector("body"), getStorageData("data"));
+    main(document.body, getStorageData("data"));
   }
 })();

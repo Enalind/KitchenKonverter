@@ -53,12 +53,6 @@ async function loadDefaults(event) {
     const fromMetric = settings.from === "metric";
     const toMetric = settings.to === "metric";
 
-    // Check if "toPortion" data is available and update the corresponding UI element
-    if (data.toPortion) {
-        const toPortionData = data.toPortion;
-        toPortionElement.value = toPortionData; // Assuming "toPortionElement" is defined
-    }
-
     // Update the state of the "from" and "to" checkboxes in the UI
     fromCheckboxElement.checked = fromMetric; // Assuming "fromCheckboxElement" is defined
     toCheckboxElement.checked = toMetric; // Assuming "toCheckboxElement" is defined
@@ -73,14 +67,6 @@ async function saveDefaults(event) {
         "to": toCheckboxElement.checked ? "metric" : "us"
     };
 
-    // Check if both "fromPortion" and "toPortion" values are available
-    if (fromPortionElement.value && toPortionElement.value) {
-        // Calculate and add the "factor" property to the submission
-        submission["factor"] = (parseInt(toPortionElement.value) / parseInt(fromPortionElement.value)).toFixed(1);
-
-        // Add the "toPortion" property to the submission
-        submission["toPortion"] = parseInt(toPortionElement.value);
-    }
 
     // Store the submission object in Chrome storage under the "data" key
     chrome.storage.sync.set({"data": submission});
