@@ -48,4 +48,9 @@ describe("End to end testing", () => {
         await main(document.body, reciveData)
         expect(document.body.innerHTML).toEqual('<li><div><span>1 and 1/5 </span> <span>dl</span></div> <div><span>1 and 1/5 </span> <span>dl</span></div></li>')
     })
+    test("1 and 1/4 cups", async () => {
+        document.body.innerHTML = `<li><span><p>hello</p></span><span>1</span> and 1/4 cups ( <span>225g</span></li>`
+        await main(document.body, reciveData)
+        expect(document.body.innerHTML).toEqual('<li><div><span>1 and 1/5 </span> <span>dl</span></div> <div><span>1 and 1/5 </span> <span>dl</span></div></li>')
+    })
 })

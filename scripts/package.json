@@ -5,10 +5,11 @@
   "main": "content_script.js",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/content_script.js --bundle --target=chrome117,firefox117,edge117,opera102 --outfile=dist/bundle.js --watch",
+    "build": "esbuild src/content_script.js --bundle --target=chrome117,firefox117,edge117,opera102 --minify --outfile=dist/bundle.js",
+    "dev": "esbuild src/content_script.js --bundle --target=chrome117,firefox117,edge117,opera102 --outfile=dist/bundle.js --watch",
     "test": "jest"
   },
-  "author": "",
+  "author": "Elias Lindström",
   "license": "ISC",
   "dependencies": {
     "@babel/preset-env": "^7.22.20",

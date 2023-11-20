@@ -1,17 +1,19 @@
 {
     "manifest_version": 3,
-    "name": "KitchenKonverter2",
-    "version": "2.0",
-    "description": "This extension effortlessly converts between U.S. units and metric, allowing you to take advantage of all recipes.",
+    "name": "Kitchen Konverter",
+    "version": "2.1",
+    "description": "The ultimate extension for effortless cooking. Instantly switch between U.S. and metric measurements, perfecting every recipe",
     "author": "Elias Lindström",
     "permissions": [
-        "storage"
+        "storage",
+        "activeTab"
     ],
     "icons": {
-        "16": "icon/16.png",
-        "32": "icon/32.png",
-        "48": "icon/48.png",
-        "128": "icon/128.png"
+        "16": "icon/16x16.png",
+        "32": "icon/32x32.png",
+        "48": "icon/48x48.png",
+        "128": "icon/128x128.png",
+        "1024": "icon/1024x1024.png"
       },
     "content_scripts": [
         {
@@ -19,23 +21,11 @@
             
             "matches": [
                 "*://*/*"
-            ],
-            "exclude_matches": [
-                "https://google.com/*"
             ]
         }
     ],
-    "web_accessible_resources": [{
-        "matches": ["<all_urls>"],
-        "resources": ["scripts/constants.json"]
-    }],
     "action": {
         "default_popup": "index.html"
-    },
-    "browser_specific_settings": {
-        "gecko": {
-          "id": "enalindstrom@gmail.com"
-        }
     }
     
 }

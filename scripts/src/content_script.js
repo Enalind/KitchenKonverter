@@ -24,7 +24,23 @@ export function searchForSplitNodes(childNode, node, matches, expression, nonGlo
     }
 }
 
-
+export function searchForSplitHi(childNode, node, matches, expression, nonGlobalRegex, matchList){
+    for(const grandchild of childNode.children){
+        if(grandchild.tagName == "SCRIPT" | grandchild.tagName == "STYLE" | !grandchild.textContent){continue;}
+        //If the grandchild is a script or style tag, skip it
+        if(nonGlobalRegex.test(grandchild.textContent)){
+            //Check if expression matches the regex
+            const grandchildMatches = grandchild.textContent.match(expression)
+            //Isolate the matched regex
+            searchForSplitNodes(grandchild, childNode, grandchildMatches, expression, nonGlobalRegex, matchList)
+            //Recursively search the next node
+        }
+    }
+    if(node != null){
+        matchList.push([childNode, matches])
+        //Add the matched node and the matches to the list
+    }
+}
 
 export function depthFirstSearch(node, expression, nonGlobalRegex, matchList){
     const stack = [node]
@@ -55,7 +71,7 @@ export function depthFirstSearch(node, expression, nonGlobalRegex, matchList){
     }
 }
 
-
+// https://sallysbakingaddiction.com/double-chocolate-chip-cookies-recipe/
 export function updateMatches(matchList, unitFindRegex, measureType, languageInfo){
     for(const [node, matches, splitNodeText] of matchList){
         //Iterate through the list of lists containing the DOM nodes and their respective regex matches
@@ -86,8 +102,25 @@ export function updateMatches(matchList, unitFindRegex, measureType, languageInf
                         numericNode = child
                     }
                 }
+                console.log(node.innerHTML, match)
+                if(numericPart.includes("and")){
+                    let numericSplitted = numericPart.split(" and ")
+                    var numericBeforeAndNode = numericNode
+                    var numericAfterAndNode = numericNode
+                    console.log(numericSplitted)
+                    for(const child of node.children){
+                        if(child.textContent?.includes(numericSplitted[0].replace(" ", "")) && numericBeforeAndNode == node){
+                            numericBeforeAndNode = child
+                        }
+                        else if (child.textContent?.includes(numericSplitted[1].replace(" ", "")) && numericAfterAndNode == node){
+                            numericAfterAndNode = child
+                        }
+                    }
+                    console.log(numericBeforeAndNode.textContent, numericAfterAndNode.textContent)
+                }
+                
                 //Do the same thing with the numeric node
-                if(numericNode.tagName == "SCRIPT" || numericNode.tagName == "STYLE" || unitNode.tagName == "SCRIPT" || unitNode.tagName == "STYLE"){continue}
+                if(numericNode.tagName == "SCRIPT" || numericNode.tagName == "STYLE" || unitNode.tagName == "SCRIPT" || unitNode.tagName == "STYLE" || numericNode.tagName == "NOSCRIPT"){continue}
                 //Check if the nodes are script or style tags, in that case skip this match
                 var isSlashFractionMatched = false
                 var convertedQuantity = 0

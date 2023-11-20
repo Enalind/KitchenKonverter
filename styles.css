@@ -1,6 +1,6 @@
 body{
   --slider-multiple: 2;
-  background-color: #353638;
+  background-color: #1B1B1E;
   color: white;
   font-family: 'Roboto', sans-serif;
   width: 200px;
@@ -49,7 +49,7 @@ body{
   }
   
   input:checked + .slider {
-    background-color: #002654;
+    background-color: #8caace;
   }
   
   input:focus + .slider {
@@ -57,7 +57,7 @@ body{
   }
   
   input:checked + .slider:before {
-    background-image: url("./assets/France.png");
+    background-image: url("./assets/Eu.png");
     background-size: cover;
     /* background-color: #ffffff; */
     -webkit-transform: translateY(calc(-13px * var(--slider-multiple)));

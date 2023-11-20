@@ -375,7 +375,7 @@
             node.innerHTML = node.innerHTML.replaceAll(splitNodeText, unitString);
           } else if (numericNode == unitNode) {
             const newString = match[1] + numericString + " " + unitString + contextPart;
-            node.innerHTML = node.innerHTML.replaceAll(match[0], newString);
+            node.innerText = node.innerText.replaceAll(match[0], newString);
           } else {
             unitNode.textContent = unitNode.textContent.replaceAll(unitPart, unitString);
             if (isSlashFractionMatched) {
