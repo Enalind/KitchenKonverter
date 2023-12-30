@@ -1,218 +1,169 @@
-import { conversions, slashFractionMatcherRegex } from "./constants";
-import { calculateUnitString, getStorageData, getDirectlyContainedText } from "./utils";
-import { decimalToFractionLookup, commonUnicodeFractions, fractionMatcherRegex, singularFractionRegex, defaultConfig} from "./constants";
 
-export function searchForSplitNodes(childNode, node, matches, expression, nonGlobalRegex, matchList){
-    let isNotRemaining = false
-    for(const grandchild of childNode.children){
-        if(grandchild.tagName == "SCRIPT" | grandchild.tagName == "STYLE" | !grandchild.textContent){continue;}
-        //If the grandchild is a script or style tag, skip it
-        const testable = grandchild.textContent
-        if(nonGlobalRegex.test(testable)){
-            //Check if expression matches the regex
-            const grandchildMatches = grandchild.textContent.match(expression)
-            //Isolate the matched regex
-            searchForSplitNodes(grandchild, childNode, grandchildMatches, expression, nonGlobalRegex, matchList)
-            //Recursively search the next node
-            isNotRemaining = true
-            //Since only the deepest node is relevant, this flag makes it so that the previous recursions are ignored
-        }
-    }
-    if(node != null && !isNotRemaining){
-        matchList.push([childNode, matches])
-        //Add the matched node and the matches to the list
-    }
-}
+import { calculateUnitString, getStorageData, convertToDecimalOfNewUnit, insert } from "./utils";
+import { decimalToFractionLookup, defaultConfig, conversions} from "./constants";
 
-export function searchForSplitHi(childNode, node, matches, expression, nonGlobalRegex, matchList){
-    for(const grandchild of childNode.children){
-        if(grandchild.tagName == "SCRIPT" | grandchild.tagName == "STYLE" | !grandchild.textContent){continue;}
-        //If the grandchild is a script or style tag, skip it
-        if(nonGlobalRegex.test(grandchild.textContent)){
-            //Check if expression matches the regex
-            const grandchildMatches = grandchild.textContent.match(expression)
-            //Isolate the matched regex
-            searchForSplitNodes(grandchild, childNode, grandchildMatches, expression, nonGlobalRegex, matchList)
-            //Recursively search the next node
-        }
-    }
-    if(node != null){
-        matchList.push([childNode, matches])
-        //Add the matched node and the matches to the list
-    }
-}
-
-export function depthFirstSearch(node, expression, nonGlobalRegex, matchList){
-    const stack = [node]
-    const visited = new Set()
-
-    while (stack.length){
-        const vertex = stack.pop()
-        if(!visited.has(vertex)){
-            visited.add(vertex)
-            const directlyContainedText = getDirectlyContainedText(vertex)
-            if(nonGlobalRegex.test(directlyContainedText) && vertex.tagName != "SCRIPT" && vertex.tagName != "STYLE"){
-                if(vertex.previousSibling != null){
-                    const prevSiblingText = getDirectlyContainedText(vertex.previousSibling)
-                    // Check for text only contained in the immediate node at hand
-                    if(nonGlobalRegex.test(directlyContainedText + prevSiblingText) && prevSiblingText != "" && prevSiblingText != " "){
-                        matchList.push([vertex, (prevSiblingText + directlyContainedText).match(expression), directlyContainedText])
-                    }
-                    
-                }
-                // If it is split over two nodes, add it to the list anyways
-                else{
-                    matchList.push([vertex, directlyContainedText.match(expression)])
-                }
+export function BeginSearch(expression){
+    var matches = [...document.body.textContent.matchAll(expression)]
+    // Begin by matching the entire document to the regex
+    var matchList = []
+    var prevSearchPhrases = []
+    for (const match of matches){
+        if(prevSearchPhrases.includes(match[0])){continue;}
+        // Iterate through the matches, making sure to not search a match word more than once
+        // That is beacause the search function returns all the matches in the entire document for a search string
+        let simpleMatches = SimpleSearch(match[0])
+        for(const simpleMatch of simpleMatches){
+            if (!["SCRIPT", "NOSCRIPT", "STYLE"].includes(simpleMatch.tagName)){
+                matchList.push([simpleMatch, match[0]])
             }
-            stack.push(...vertex.children)
+            //Make sure the nodes are not blacklisted
         }
-        
+        prevSearchPhrases.push(match[0])
+        // Add the searhed phrase to the blacklist
     }
+    var duplicatesToAdd = []
+    for(const match of matchList){
+        const roof = match[0].textContent.split(match[1]).length - 2
+        for (var i = 0; i < roof; i++){
+            duplicatesToAdd.push(match)
+        }
+    }
+    // If a singular element contains more than one match of the same word, the duplicate will not be added by the search function
+    // This function ensures that these duplicates are added back
+    return [...matchList, ...duplicatesToAdd].sort((a, b) => b[1].length - a[1].length)
+    // Concatenate the lists and sort them by decending length of the matched string
+    // This is neccessary since longer strings like "1 and 1/2 cup" will get two matches
+    // One of the full string and one of "1/2 cup" which would present an issue since the shorter string is not displaying the correct measurment
+    // If it is placed later in the matchList Iít will be ignored because of how the replacement is structured, ensuring the correct measurment is displayed
 }
 
-// https://sallysbakingaddiction.com/double-chocolate-chip-cookies-recipe/
-export function updateMatches(matchList, unitFindRegex, measureType, languageInfo){
-    for(const [node, matches, splitNodeText] of matchList){
-        //Iterate through the list of lists containing the DOM nodes and their respective regex matches
-        for(let match of matches){
-            match = match.match(unitFindRegex)
-            //Go through each match and break it up into the regex groups
-            if(match[2]){
-                //If there are any matches, proceed
-                let numericNode = node
-                let unitNode = node
-                let numericPart = match[2]
-                const unitPart = match[4]
-                const contextPart = match[5]
-                // Break the regex up into more readable constants
-                if(/^[A-RT-Za-rt-z]/.test(contextPart)){continue}
-                // make sure that the match isn't immediately followed by a letter except for s (cupS) to prevent unwanted matches
-                for(const child of node.children){
-                    if(child.textContent?.includes(unitPart) && unitNode == node){
+
+export function SimpleSearch(text){
+    // This function returns all the lowest nodes in the DOM that contains a given search string
+    var elements = document.body.getElementsByTagName("*")
+    // Initialize all the elements to search, which is always all of them, returned in preorder traversal of the DOM tree
+    var latestMatch = null;
+    var matchList = []
+    for (var i = 0; i < elements.length; i++) {
+        if (elements[i].textContent && elements[i].textContent.includes(text) && !elements[i].textContent.includes("/" + text)) {
+            if(latestMatch != null && elements[i].parentNode != latestMatch){
+                matchList.push(latestMatch)
+            }
+            latestMatch = elements[i]
+        }
+    }
+    // This loop iterates through the elements and keeps track of the latest element matched
+    // Since if the child contains the given string, so will the parent and the elements are searched in preorder the latest match will be a parent of the child
+    // Therefore the parent is not the lowest node
+    // If the next node searched is not a child to the latestMatch, then that match was one of the lowest nodes containing the given search string, therefore it is added to the list
+    matchList.push(latestMatch)
+    // The last lowest node matching the string should also be added
+    return matchList
+}
+
+export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageInfo){
+    for(const [node, matchString] of matchList){
+        let match = matchString.match(nonGlobalRegex)
+        // Iterate through each node-matchString pair and split the matchString into the neccessary groups with the match function
+        // It is important to utilize a non global regex, that is because the global flag makes the regex carry the lastIndex from which the regex stopped searching
+        // That is unfortunate when the same regex is used many times on different strings
+        if(!match[2]){continue;}
+        // If no match is found, skip the loop iteration
+        let unitNode = node
+        let numericPart = match[1]
+        const unitPart = match[3]
+        // initialize the variable names which are convinient and make the code more readable
+        var nodesBeingSearched = [...node.childNodes]
+
+        var nodesToSearch = []
+        var i = 0 
+        foundNode:
+        while (i < 10){
+            for(const child of nodesBeingSearched){
+                if (child.nodeType == 3){
+                    if(child.textContent?.includes(unitPart)){
                         unitNode = child
+                        break foundNode
                     }
                 }
-                // Check if the unit string is the lowest node it can be in the DOM, otherwise find it and make it so that the unit node is the lowest it can be
-                for(const child of node.children){
-                    if(child.textContent?.includes(numericPart.replace(" ", "")) && numericNode == node){
-                        numericNode = child
-                    }
-                    else if(numericNode != node && child.nextElementSibling == unitNode){
-                        numericNode = child
-                    }
-                }
-                console.log(node.innerHTML, match)
-                if(numericPart.includes("and")){
-                    let numericSplitted = numericPart.split(" and ")
-                    var numericBeforeAndNode = numericNode
-                    var numericAfterAndNode = numericNode
-                    console.log(numericSplitted)
-                    for(const child of node.children){
-                        if(child.textContent?.includes(numericSplitted[0].replace(" ", "")) && numericBeforeAndNode == node){
-                            numericBeforeAndNode = child
-                        }
-                        else if (child.textContent?.includes(numericSplitted[1].replace(" ", "")) && numericAfterAndNode == node){
-                            numericAfterAndNode = child
-                        }
-                    }
-                    console.log(numericBeforeAndNode.textContent, numericAfterAndNode.textContent)
-                }
-                
-                //Do the same thing with the numeric node
-                if(numericNode.tagName == "SCRIPT" || numericNode.tagName == "STYLE" || unitNode.tagName == "SCRIPT" || unitNode.tagName == "STYLE" || numericNode.tagName == "NOSCRIPT"){continue}
-                //Check if the nodes are script or style tags, in that case skip this match
-                var isSlashFractionMatched = false
-                var convertedQuantity = 0
-                if(numericPart.includes("and")){
-                    convertedQuantity += parseFloat(numericPart)
-                    numericPart.replace(numericPart + " and ", "")
-                }
-                //Check if the match is written like so: 1 and 1/2
-                if(slashFractionMatcherRegex.test(numericPart)){
-                    isSlashFractionMatched = true
-                    const slashFractionMatch = numericPart.match(slashFractionMatcherRegex)
-                    convertedQuantity += parseFloat(slashFractionMatch[1])
-                    convertedQuantity += parseFloat(slashFractionMatch[2].split("/")[0]) / parseFloat(slashFractionMatch[2].split("/")[1])
-                }
-                //Check if the match is written like so: 1 1/2
-                else if(numericPart.includes("/")){
-                    convertedQuantity += parseFloat(numericPart.split("/")[0]) / parseFloat(numericPart.split("/")[1])
-                }
-                //Check if the match is written like so: 1/2
-                else if(fractionMatcherRegex.test(numericPart)){
-                    const fractionMatch = numericPart.match(fractionMatcherRegex)
-                    const fractionalQuantity = commonUnicodeFractions[fractionMatch[2]]
-                    convertedQuantity += parseInt(fractionMatch[1]) + (parseFloat(fractionalQuantity.split("/")[0]) / parseFloat(fractionalQuantity.split("/")[1]))
-                }
-                //Check if the match is written like so: 1½
-                else if(singularFractionRegex.test(numericPart)){
-                    
-                    const fractionMatch = numericPart.match(singularFractionRegex)
-                    const fractionalQuantity = commonUnicodeFractions[fractionMatch[0]]
-                    convertedQuantity += parseFloat(fractionalQuantity.split("/")[0]) / parseFloat(fractionalQuantity.split("/")[1])
-                }
-                //Check if the match is written like so: ½
-                else{
-                    convertedQuantity += parseFloat(numericPart.replace(",", "."))
-                }
-                if(!isSlashFractionMatched){numericPart = numericPart.replaceAll(" ", "")}
-                //Otherwise, parse it as a float like so: 1.5; 2 or 3,5
-
-                if(measureType != "temperature"){
-                    var unitFound = false
-                    conversions[measureType][languageInfo.from].forEach(unit => {
-                        if(unitPart.toLowerCase().replace(" ", "") == unit["name"] | unit.abbr.includes(unitPart.toLowerCase()) && !unitFound){
-                            unitFound = true
-                            convertedQuantity = convertedQuantity * unit.standard
-                        }
-                    })
-                    if(!unitFound){console.log("unit not found"); debugger; continue}
-                } 
-                //Iterate through different aliases of units for the specified system and convert it
-                var numericString
-                var unitString
-                
-                if(measureType === "temperature"){
-                    numericString = parseInt(conversions[measureType][languageInfo.to][0]["conversionFunction"](convertedQuantity))
-                    unitString = conversions[measureType][languageInfo.to][0]["name"]
-                }
-                else{
-                    const unitList = conversions[measureType].shared ? conversions[measureType][languageInfo.to].concat(conversions[measureType].shared) : conversions[measureType][languageInfo.to]
-                    // Compile a unit list, this is neccessary since the measureType VOLUME has shared measurements like teaspoon and tablespoon, while the other measureTypes do not
-                    const result = calculateUnitString(convertedQuantity, unitList, decimalToFractionLookup);
-                    numericString = result[0]
-                    unitString = result[1]
-                }
-                if(splitNodeText){
-                    node.previousSibling.textContent = numericString
-                    node.innerHTML = node.innerHTML.replaceAll(splitNodeText, unitString)
-                }
-                //This is for the times that the match is split over two nodes like so: <p>1</p><p>and 1/2</p><p>sugar</p>
-                else if(numericNode == unitNode){
-                    const newString = match[1] + numericString + " " + unitString + contextPart
-                    node.innerHTML = node.innerHTML.replaceAll(match[0], newString)
-                    //Add the unit and numeric strings together along with the context that is used to differentiate between matches in the same node 
-                }
-                else{
-                    //Otherwise, the unit and numeric nodes are different
-                    unitNode.textContent = unitNode.textContent.replaceAll(unitPart, unitString)
-                    if(isSlashFractionMatched){
-                        numericNode.innerHTML = numericNode.innerHTML.replaceAll(numericPart, numericString )
-                    }
-                    //The regex removes spaces in some cases which is normally added back like below, if it is written like so: 1 1/2, then the space is not removed and therefore does not need to be added back
-                    else{
-                        numericNode.innerHTML = numericNode.innerHTML.replaceAll(numericPart, numericString + " ")
-                    }
+                if (child.nodeType == 1){
+                    nodesToSearch.push(...child.childNodes)
                 }
             }
+            nodesBeingSearched = nodesToSearch
+            nodesToSearch = []
+            i++
         }
         
+        // Iterate through all the text nodes below the searched node and find the one containing the unit, which is the same one that the alteration will later be inserted into
+        // Using the text instead of the textContent key ensures that the rest of the nodes HTML stays intact
+        let convertedQuantity = convertToDecimalOfNewUnit(numericPart, measureType, languageInfo, unitPart)
+        if(isNaN(convertedQuantity)){continue;}
+        // Get the quantity of the match in SI units
+        var numericString
+        var unitString
+        
+        if(measureType === "temperature"){
+            numericString = parseInt(conversions[measureType][languageInfo.to][0]["conversionFunction"](convertedQuantity))
+            unitString = conversions[measureType][languageInfo.to][0]["abbr"][0]
+            // If the match is of temperature, then the first abbreviation should be used
+            // Also a specialized conversion function is used
+        }
+        else{
+            const unitList = conversions[measureType].shared ? conversions[measureType][languageInfo.to].concat(conversions[measureType].shared) : conversions[measureType][languageInfo.to]
+            // Compile a unit list, this is neccessary since the measureType VOLUME has shared measurements like teaspoon and tablespoon, while the other measureTypes do not
+            const result = calculateUnitString(convertedQuantity, unitList, decimalToFractionLookup);
+            // Take the SI unit and change to the correct result, which is an array comprised of the numeric part and unit part
+            numericString = result[0]
+            unitString = result[1]
+        }
+        var windowStart = 0
+        var iterations = 0
+        while (iterations < 3){
+            if (unitNode.textContent.slice(windowStart).indexOf(numericPart + unitPart) === -1){
+                // If the numeric and unit parts do not exist in the nodes textContent
+                if (windowStart === 0){
+                    windowStart = unitNode.textContent.indexOf(unitPart) + unitPart.length
+                    // If this is the first iteration get the index of the unit, which is neccessarily in the text node since that is the reason it was chosen earlier
+                    // The indexOf returns the start of the unit, but we are interested in the end which is why an offset is added to account for that
+                }
+                else if(unitNode.textContent.slice(windowStart).indexOf(unitPart) == -1){
+                    break
+                }
+                // If the unit does not exist in the current search window, end the search
+                else{
+                    windowStart = unitNode.textContent.slice(windowStart).indexOf(unitPart) + unitPart.length + windowStart
+                    // Else update the window start to the, the offsets are to account for the length of the unitPart and that the indexOf is only
+                    // Given the window, and we are interested in the entire text
+                }
+            }
+            else if (windowStart === 0){
+                windowStart = unitNode.textContent.indexOf(numericPart + unitPart) + unitPart.length + numericPart.length
+            }
+            else{
+                windowStart = unitNode.textContent.slice(windowStart).indexOf(numericPart + unitPart) + unitPart.length + windowStart + numericPart.length
+            }
+            // If the numeric and unit parts do exist in the window, update the windowStart to their match
+            if (/[s.,\s/\(\)]|(undefined)/i.test(unitNode.textContent[windowStart]) ){
+                // The regex is used to avoid false matches like "200 fish", in which it would get a match because "200 f" is seen
+                // Because of the regex that is avoided since the letter att windowStart would be "200 fIsh" and would not be matched
+                unitNode.textContent = insert(unitNode.textContent, windowStart, `【${numericString} ${unitString}】`)
+                break
+            }
+            else if (unitNode.textContent[windowStart] != "【"){
+                break
+            }
+            // If the letter encountered is an 【 then the search shall continue because that match has been visited earlier, instead the windowStart is used to ignore the previous match
+            iterations += 1
+            // The iterations is unsed to prevent a possible infinite loop
+        }
+        
+
     }
-    return document.body.innerHTML
-    //Return the body which is usefull for testing purposes
+    return document.body
 }
-export async function main(rootNode, reciveData){
+
+export async function main(reciveData){
     var data = await reciveData;
     if (Object.keys(data).length === 0) {
         data = defaultConfig;
@@ -224,20 +175,16 @@ export async function main(rootNode, reciveData){
     
     for(const measurments of Object.keys(conversions)){
         //Iterate through the measurments like volume and weight
-        var matchList = []
         
         const globalExpression = conversions[measurments]["regex"][data.from][0]
         const nonGlobalExpression = conversions[measurments]["regex"][data.from][1]
-        if(!globalExpression.test(rootNode.textContent)){
+        if(!nonGlobalExpression.test(document.body.textContent)){
             continue
         }
-        depthFirstSearch(rootNode, globalExpression, nonGlobalExpression, matchList)
-        updateMatches(matchList, nonGlobalExpression, measurments, data)
-        //Do the first search and update the nodes
-        matchList = []
-        searchForSplitNodes(rootNode, null, null, globalExpression, nonGlobalExpression, matchList)
-        updateMatches(matchList, nonGlobalExpression, measurments, data)
-        //Do the second search and update the nodes
+        // If there exists no match in the entire body, skip
+        let matchList = BeginSearch(globalExpression)
+        SimpleReplace(matchList, measurments, nonGlobalExpression, data)
+        //This helps avoid false positives, since recepie pages typically contain between 3 and 15 measurments of each kind a matchlist with only one match is probably a false positive
     }
 }
 if(typeof process === "undefined"){
@@ -247,6 +194,7 @@ if(typeof process === "undefined"){
     else{
         browser.storage.onChanged.addListener(() => location.reload())
     }
-    main(document.body, getStorageData("data"))
+    main(getStorageData("data"))
 }
+// This is to aide in testing, since if the script is run in a node ENV the process will be defined, and this should not get ran
 
