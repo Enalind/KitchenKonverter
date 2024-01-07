@@ -12,7 +12,10 @@ const commitButton = document.querySelector("#commit-button");
 const fromPortionElement = document.querySelector("#from-portion");
 const toPortionElement = document.querySelector("#to-portion");
 
-
+const bugReporter = document.querySelector("p")
+bugReporter.onclick = async () => {
+    
+}
 
 const errorCatchingMessagePromise = (tab, message) => new Promise((resolve, reject) => {
     chrome.tabs.sendMessage(tab.id, message, (response) => {

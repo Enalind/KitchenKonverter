@@ -13,7 +13,7 @@ export function BeginSearch(expression){
         // That is beacause the search function returns all the matches in the entire document for a search string
         let simpleMatches = SimpleSearch(match[0])
         for(const simpleMatch of simpleMatches){
-            if (!["SCRIPT", "NOSCRIPT", "STYLE"].includes(simpleMatch.tagName)){
+            if (!["SCRIPT", "NOSCRIPT", "STYLE"].includes(simpleMatch?.tagName)){
                 matchList.push([simpleMatch, match[0]])
             }
             //Make sure the nodes are not blacklisted
