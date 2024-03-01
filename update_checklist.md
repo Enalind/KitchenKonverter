@@ -8,16 +8,9 @@
     2. git commit -m 'Commit message here'
     3. "git push origin master"
 4. Package the extension:
-    1. conda activate
-    2. python package.py
+    1. python package.py
 5. Test the packaged extension in all browsers
-6. Package to .crx and .pem:
-    1. Go to chrome://extensions
-    2. Click pack extension in the top left corner
-    3. Select the Unpackaged directory
-    4. Place the resulting files in the "CRX and PEM" dir
-    5. Repeat for the firefox directory
-7. Update on [Microsoft Partner Center](https://partner.microsoft.com/en-us/dashboard/microsoftedge/overview) by uploading Kitchen_Konverter.zip
-8. Update on [Firefox](https://addons.mozilla.org/en-US/developers/addon/kitchenkonverter/versions/submit/) by uploading Firefox.crx
-9. Update on [Chrome](https://chrome.google.com/webstore/devconsole/) by uploading Kitchen_Konverter.zip
-10. Update on Opera if you want
+6. Update on [Microsoft Partner Center](https://partner.microsoft.com/en-us/dashboard/microsoftedge/overview) by uploading Kitchen_Konverter.zip
+7. Update on [Firefox](https://addons.mozilla.org/en-US/developers/addon/kitchenkonverter/versions/submit/) by uploading Firefox.zip
+8. Update on [Chrome](https://chrome.google.com/webstore/devconsole/) by uploading Kitchen_Konverter.zip
+9. Update on Opera if you want, they wont launch it so it doesn't really matter

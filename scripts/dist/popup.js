@@ -12,11 +12,6 @@ const commitButton = document.querySelector("#commit-button");
 const fromPortionElement = document.querySelector("#from-portion");
 const toPortionElement = document.querySelector("#to-portion");
 
-const bugReporter = document.querySelector("p")
-bugReporter.onclick = async () => {
-    
-}
-
 const errorCatchingMessagePromise = (tab, message) => new Promise((resolve, reject) => {
     chrome.tabs.sendMessage(tab.id, message, (response) => {
         if (chrome.runtime.lastError) {
@@ -48,7 +43,7 @@ async function loadDefaults(event) {
     const data = (await browser.storage.sync.get("data")).data;
 
     // Check if "data" is not an empty object
-    if (Object.keys(data).length !== 0) {
+    if (data != undefined) {
         settings = data;
     }
 

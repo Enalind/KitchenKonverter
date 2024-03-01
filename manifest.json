@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Kitchen Konverter",
-    "version": "2.3",
+    "version": "2.4",
     "description": "The ultimate extension for effortless cooking. Instantly switch between U.S. and metric measurements, perfecting every recipe",
     "author": "Elias Lindström",
     "permissions": [
@@ -25,8 +25,7 @@
         }
     ],
     "background": {
-        "service_worker": "scripts/dist/background.js",
-        "type": "module"
+        "service_worker": "scripts/dist/background.js"
     },
     "action": {
         "default_popup": "index.html"

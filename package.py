@@ -37,7 +37,7 @@ shutil.copy(os.getcwd() +  "\\scripts\\dist\\background.js", unpackagedPath + "\
 copyToBoth("index.html", "index.html")
 copyToBoth("manifest.json", "manifest.json")
 copyToBoth("styles.css", "styles.css")
-
+#"scripts": ["scripts/dist/background.js"]
 
 shutil.copytree(os.getcwd() + "\\assets", unpackagedPath + "\\assets")
 shutil.copytree(os.getcwd() + "\\assets", sourcePath + "\\assets")
@@ -52,6 +52,14 @@ filedata = filedata.replace('"js": ["scripts/dist/bundle.js"],', '"js": ["script
 filedata = filedata.replace('"scripts/dist/background.js"', '"scripts/background.js"')
 
 with open(unpackagedPath + "\\manifest.json", "w") as f:
+    f.write(filedata)
+
+with open(unpackagedPath + "\\index.html", "r") as f:
+    filedata = f.read()
+
+filedata = filedata.replace('src="scripts/dist/popup.js"', 'src="scripts/popup.js"')
+
+with open(unpackagedPath + "\\index.html", "w") as f:
     f.write(filedata)
 
 shutil.copytree(os.getcwd() + "\\scripts\\src", sourcePath + "\\scripts\\src")
@@ -70,7 +78,15 @@ filedata2.insert(1, '    "browser_specific_settings": {"gecko": {"id": "enalinds
 with open(newPath + "\\Firefox\\manifest.json", "w") as f:
     f.writelines(filedata2)
 
+with open(newPath + "\\Firefox\\manifest.json", "r") as f:
+    filedata2 = f.read()
+filedata2 = filedata2.replace('"service_worker": "scripts/background.js"', '"scripts": ["scripts/background.js"]')
+with open(newPath + "\\Firefox\\manifest.json", "w") as f:
+    f.write(filedata2)
+
 shutil.make_archive(zipsPath + "\\Kitchen_Konverter", "zip", unpackagedPath)
 shutil.make_archive(zipsPath + "\\Kitchen_Konverter_Source", "zip", sourcePath)
+shutil.make_archive(zipsPath + "\\Firefox", "zip", newPath + "\\Firefox")
+
 
 print("Done!")

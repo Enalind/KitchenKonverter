@@ -6,121 +6,94 @@ body{
   width: 200px;
 }
 
+#commit-button{
+  cursor: pointer;
+}
+
 .switch {
-    position: relative;
-    display: inline-block;
-    height: calc(30px * var(--slider-multiple));
-    width: calc(17px * var(--slider-multiple));
-  }
-  
-  /* Hide default HTML checkbox */
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  /* The slider */
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #b31942;
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
-  
-  
+  position: relative;
+  display: inline-block;
+  height: calc(30px * var(--slider-multiple));
+  width: calc(17px * var(--slider-multiple));
+}
 
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: calc(13px * var(--slider-multiple));
-    width: calc(13px * var(--slider-multiple));
-    left: calc(2px * var(--slider-multiple));
-    bottom: calc(2px * var(--slider-multiple));
-    background-image: url("./assets/US.jpg");
-    background-size: cover;
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
-  
-  input:checked + .slider {
-    background-color: #8caace;
-  }
-  
-  input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
-  }
-  
-  input:checked + .slider:before {
-    background-image: url("./assets/Eu.png");
-    background-size: cover;
-    /* background-color: #ffffff; */
-    -webkit-transform: translateY(calc(-13px * var(--slider-multiple)));
-    -ms-transform: translateY(calc(-13px * var(--slider-multiple)));
-    transform: translateY(calc(-13px * var(--slider-multiple)));
-  }
-  
-  #commit{
-    background-color: #848484;
-    color: white;
-    border: none;
-    width: 40%;
-    margin: 10px;
-    border-radius: 20px;
-  }
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
 
-  /* Rounded sliders */
-  .slider.round {
-    border-radius: calc(17px * var(--slider-multiple));
-  }
-  
-  .slider.round:before {
-    border-radius: 50%;
-  }
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #b31942;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
 
-  #control-wrapper{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .slider-group{
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    justify-content: space-around;
-    width: 120%;
-  }
-  .control-section{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 90%;
-  }
 
-  
 
-  .portions{
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    width: 100vw;
-  }
-  .portions input[type=number]{
-    /* flex-grow: 1; */
-    min-width: 0;
-    width: 50px;
-    height: 32px;
-    border-radius: 5px;
-    font-size: 1rem;
-    border-width: 0;
-  }
+.slider:before {
+  position: absolute;
+  content: "";
+  height: calc(13px * var(--slider-multiple));
+  width: calc(13px * var(--slider-multiple));
+  left: calc(2px * var(--slider-multiple));
+  bottom: calc(2px * var(--slider-multiple));
+  background-image: url("./assets/US.jpg");
+  background-size: cover;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
 
-  .portions input[type=number]:focus{
-    outline: none;
-  }
+input:checked + .slider {
+  background-color: #8caace;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  background-image: url("./assets/Eu.png");
+  background-size: cover;
+  -webkit-transform: translateY(calc(-13px * var(--slider-multiple)));
+  -ms-transform: translateY(calc(-13px * var(--slider-multiple)));
+  transform: translateY(calc(-13px * var(--slider-multiple)));
+}
+
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: calc(17px * var(--slider-multiple));
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+#control-wrapper{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.slider-group{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: space-around;
+  width: 120%;
+}
+.control-section{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 90%;
+}

@@ -3,7 +3,7 @@ import { calculateUnitString, getStorageData, convertToDecimalOfNewUnit, insert 
 import { decimalToFractionLookup, defaultConfig, conversions} from "./constants";
 
 export function BeginSearch(expression){
-    var matches = [...document.body.textContent.matchAll(expression)]
+    var matches = [...document.body.innerText.matchAll(expression)]
     // Begin by matching the entire document to the regex
     var matchList = []
     var prevSearchPhrases = []
@@ -23,7 +23,7 @@ export function BeginSearch(expression){
     }
     var duplicatesToAdd = []
     for(const match of matchList){
-        const roof = match[0].textContent.split(match[1]).length - 2
+        const roof = match[0].innerText.split(match[1]).length - 2
         for (var i = 0; i < roof; i++){
             duplicatesToAdd.push(match)
         }
@@ -45,7 +45,7 @@ export function SimpleSearch(text){
     var latestMatch = null;
     var matchList = []
     for (var i = 0; i < elements.length; i++) {
-        if (elements[i].textContent && elements[i].textContent.includes(text) && !elements[i].textContent.includes("/" + text)) {
+        if (elements[i].innerText && elements[i].innerText.includes(text) && !elements[i].innerText.includes("/" + text)) {
             if(latestMatch != null && elements[i].parentNode != latestMatch){
                 matchList.push(latestMatch)
             }
@@ -81,7 +81,7 @@ export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageIn
         while (i < 10){
             for(const child of nodesBeingSearched){
                 if (child.nodeType == 3){
-                    if(child.textContent?.includes(unitPart)){
+                    if(child.innerText?.includes(unitPart)){
                         unitNode = child
                         break foundNode
                     }
@@ -96,7 +96,7 @@ export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageIn
         }
         
         // Iterate through all the text nodes below the searched node and find the one containing the unit, which is the same one that the alteration will later be inserted into
-        // Using the text instead of the textContent key ensures that the rest of the nodes HTML stays intact
+        // Using the text instead of the innerText key ensures that the rest of the nodes HTML stays intact
         let convertedQuantity = convertToDecimalOfNewUnit(numericPart, measureType, languageInfo, unitPart)
         if(isNaN(convertedQuantity)){continue;}
         // Get the quantity of the match in SI units
@@ -120,37 +120,37 @@ export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageIn
         var windowStart = 0
         var iterations = 0
         while (iterations < 3){
-            if (unitNode.textContent.slice(windowStart).indexOf(numericPart + unitPart) === -1){
-                // If the numeric and unit parts do not exist in the nodes textContent
+            if (unitNode.innerText.slice(windowStart).indexOf(numericPart + unitPart) === -1){
+                // If the numeric and unit parts do not exist in the nodes innerText
                 if (windowStart === 0){
-                    windowStart = unitNode.textContent.indexOf(unitPart) + unitPart.length
+                    windowStart = unitNode.innerText.indexOf(unitPart) + unitPart.length
                     // If this is the first iteration get the index of the unit, which is neccessarily in the text node since that is the reason it was chosen earlier
                     // The indexOf returns the start of the unit, but we are interested in the end which is why an offset is added to account for that
                 }
-                else if(unitNode.textContent.slice(windowStart).indexOf(unitPart) == -1){
+                else if(unitNode.innerText.slice(windowStart).indexOf(unitPart) == -1){
                     break
                 }
                 // If the unit does not exist in the current search window, end the search
                 else{
-                    windowStart = unitNode.textContent.slice(windowStart).indexOf(unitPart) + unitPart.length + windowStart
+                    windowStart = unitNode.innerText.slice(windowStart).indexOf(unitPart) + unitPart.length + windowStart
                     // Else update the window start to the, the offsets are to account for the length of the unitPart and that the indexOf is only
                     // Given the window, and we are interested in the entire text
                 }
             }
             else if (windowStart === 0){
-                windowStart = unitNode.textContent.indexOf(numericPart + unitPart) + unitPart.length + numericPart.length
+                windowStart = unitNode.innerText.indexOf(numericPart + unitPart) + unitPart.length + numericPart.length
             }
             else{
-                windowStart = unitNode.textContent.slice(windowStart).indexOf(numericPart + unitPart) + unitPart.length + windowStart + numericPart.length
+                windowStart = unitNode.innerText.slice(windowStart).indexOf(numericPart + unitPart) + unitPart.length + windowStart + numericPart.length
             }
             // If the numeric and unit parts do exist in the window, update the windowStart to their match
-            if (/[s.,\s/\(\)]|(undefined)/i.test(unitNode.textContent[windowStart]) ){
+            if (/[s.,\s/\(\)]|(undefined)/i.test(unitNode.innerText[windowStart]) ){
                 // The regex is used to avoid false matches like "200 fish", in which it would get a match because "200 f" is seen
                 // Because of the regex that is avoided since the letter att windowStart would be "200 fIsh" and would not be matched
-                unitNode.textContent = insert(unitNode.textContent, windowStart, `【${numericString} ${unitString}】`)
+                unitNode.innerText = insert(unitNode.innerText, windowStart, `【${numericString} ${unitString}】`)
                 break
             }
-            else if (unitNode.textContent[windowStart] != "【"){
+            else if (unitNode.innerText[windowStart] != "【"){
                 break
             }
             // If the letter encountered is an 【 then the search shall continue because that match has been visited earlier, instead the windowStart is used to ignore the previous match
@@ -178,7 +178,7 @@ export async function main(reciveData){
         
         const globalExpression = conversions[measurments]["regex"][data.from][0]
         const nonGlobalExpression = conversions[measurments]["regex"][data.from][1]
-        if(!nonGlobalExpression.test(document.body.textContent)){
+        if(!nonGlobalExpression.test(document.body.innerText)){
             continue
         }
         // If there exists no match in the entire body, skip
