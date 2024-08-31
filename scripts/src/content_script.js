@@ -1,9 +1,9 @@
-
+// Remember to switch textContent to innerText before release
 import { calculateUnitString, getStorageData, convertToDecimalOfNewUnit, insert } from "./utils";
 import { decimalToFractionLookup, defaultConfig, conversions} from "./constants";
-
+// ATTENTION!!! TRY TO INCORPORATE DENSITIES FOR DIFFERENT THINGS, EXAMPLE 1 cup flour = 200 pounds and such
 export function BeginSearch(expression){
-    var matches = [...document.body.innerText.matchAll(expression)]
+    var matches = [...document.body.textContent.matchAll(expression)]
     // Begin by matching the entire document to the regex
     var matchList = []
     var prevSearchPhrases = []
@@ -23,7 +23,7 @@ export function BeginSearch(expression){
     }
     var duplicatesToAdd = []
     for(const match of matchList){
-        const roof = match[0].innerText.split(match[1]).length - 2
+        const roof = match[0].textContent.split(match[1]).length - 2
         for (var i = 0; i < roof; i++){
             duplicatesToAdd.push(match)
         }
@@ -45,7 +45,7 @@ export function SimpleSearch(text){
     var latestMatch = null;
     var matchList = []
     for (var i = 0; i < elements.length; i++) {
-        if (elements[i].innerText && elements[i].innerText.includes(text) && !elements[i].innerText.includes("/" + text)) {
+        if (elements[i].textContent && elements[i].textContent.includes(text) && !elements[i].textContent.includes("/" + text)) {
             if(latestMatch != null && elements[i].parentNode != latestMatch){
                 matchList.push(latestMatch)
             }
@@ -64,6 +64,7 @@ export function SimpleSearch(text){
 export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageInfo){
     for(const [node, matchString] of matchList){
         let match = matchString.match(nonGlobalRegex)
+        containsFlour = node.textContent.includes("flour") && measureType === "volume" 
         // Iterate through each node-matchString pair and split the matchString into the neccessary groups with the match function
         // It is important to utilize a non global regex, that is because the global flag makes the regex carry the lastIndex from which the regex stopped searching
         // That is unfortunate when the same regex is used many times on different strings
@@ -81,7 +82,7 @@ export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageIn
         while (i < 10){
             for(const child of nodesBeingSearched){
                 if (child.nodeType == 3){
-                    if(child.innerText?.includes(unitPart)){
+                    if(child.textContent?.includes(unitPart)){
                         unitNode = child
                         break foundNode
                     }
@@ -96,7 +97,7 @@ export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageIn
         }
         
         // Iterate through all the text nodes below the searched node and find the one containing the unit, which is the same one that the alteration will later be inserted into
-        // Using the text instead of the innerText key ensures that the rest of the nodes HTML stays intact
+        // Using the text instead of the textContent key ensures that the rest of the nodes HTML stays intact
         let convertedQuantity = convertToDecimalOfNewUnit(numericPart, measureType, languageInfo, unitPart)
         if(isNaN(convertedQuantity)){continue;}
         // Get the quantity of the match in SI units
@@ -117,40 +118,45 @@ export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageIn
             numericString = result[0]
             unitString = result[1]
         }
+        let stringToAdd = ""
+        if(containsFlour){
+            stringToAdd = `【${convertedQuantity*0.6}】`
+        }
+
         var windowStart = 0
         var iterations = 0
         while (iterations < 3){
-            if (unitNode.innerText.slice(windowStart).indexOf(numericPart + unitPart) === -1){
-                // If the numeric and unit parts do not exist in the nodes innerText
+            if (unitNode.textContent.slice(windowStart).indexOf(numericPart + unitPart) === -1){
+                // If the numeric and unit parts do not exist in the nodes textContent
                 if (windowStart === 0){
-                    windowStart = unitNode.innerText.indexOf(unitPart) + unitPart.length
+                    windowStart = unitNode.textContent.indexOf(unitPart) + unitPart.length
                     // If this is the first iteration get the index of the unit, which is neccessarily in the text node since that is the reason it was chosen earlier
                     // The indexOf returns the start of the unit, but we are interested in the end which is why an offset is added to account for that
                 }
-                else if(unitNode.innerText.slice(windowStart).indexOf(unitPart) == -1){
+                else if(unitNode.textContent.slice(windowStart).indexOf(unitPart) == -1){
                     break
                 }
                 // If the unit does not exist in the current search window, end the search
                 else{
-                    windowStart = unitNode.innerText.slice(windowStart).indexOf(unitPart) + unitPart.length + windowStart
+                    windowStart = unitNode.textContent.slice(windowStart).indexOf(unitPart) + unitPart.length + windowStart
                     // Else update the window start to the, the offsets are to account for the length of the unitPart and that the indexOf is only
                     // Given the window, and we are interested in the entire text
                 }
             }
             else if (windowStart === 0){
-                windowStart = unitNode.innerText.indexOf(numericPart + unitPart) + unitPart.length + numericPart.length
+                windowStart = unitNode.textContent.indexOf(numericPart + unitPart) + unitPart.length + numericPart.length
             }
             else{
-                windowStart = unitNode.innerText.slice(windowStart).indexOf(numericPart + unitPart) + unitPart.length + windowStart + numericPart.length
+                windowStart = unitNode.textContent.slice(windowStart).indexOf(numericPart + unitPart) + unitPart.length + windowStart + numericPart.length
             }
             // If the numeric and unit parts do exist in the window, update the windowStart to their match
-            if (/[s.,\s/\(\)]|(undefined)/i.test(unitNode.innerText[windowStart]) ){
+            if (/[s.,\s/\(\)]|(undefined)/i.test(unitNode.textContent[windowStart]) ){
                 // The regex is used to avoid false matches like "200 fish", in which it would get a match because "200 f" is seen
                 // Because of the regex that is avoided since the letter att windowStart would be "200 fIsh" and would not be matched
-                unitNode.innerText = insert(unitNode.innerText, windowStart, `【${numericString} ${unitString}】`)
+                unitNode.textContent = insert(unitNode.textContent, windowStart, `【${numericString} ${unitString}】` + stringToAdd)
                 break
             }
-            else if (unitNode.innerText[windowStart] != "【"){
+            else if (unitNode.textContent[windowStart] != "【"){
                 break
             }
             // If the letter encountered is an 【 then the search shall continue because that match has been visited earlier, instead the windowStart is used to ignore the previous match
@@ -178,7 +184,7 @@ export async function main(reciveData){
         
         const globalExpression = conversions[measurments]["regex"][data.from][0]
         const nonGlobalExpression = conversions[measurments]["regex"][data.from][1]
-        if(!nonGlobalExpression.test(document.body.innerText)){
+        if(!nonGlobalExpression.test(document.body.textContent)){
             continue
         }
         // If there exists no match in the entire body, skip
@@ -194,7 +200,10 @@ if(typeof process === "undefined"){
     else{
         browser.storage.onChanged.addListener(() => location.reload())
     }
-    main(getStorageData("data"))
+    if(!window.location.href.includes("://www.google")){
+        main(getStorageData("data"))
+    }
+    
 }
 // This is to aide in testing, since if the script is run in a node ENV the process will be defined, and this should not get ran
 

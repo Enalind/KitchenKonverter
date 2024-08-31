@@ -53,4 +53,9 @@ describe("End to end testing", () => {
         await main(document.body, reciveData)
         expect(document.body.innerHTML).toEqual('<li><span><p>hello</p></span><span>1</span> and 1/4 cup【3 dl】s ( <span>225g</span></li>')
     })
+    test("density", async () => {
+        document.body.innerHTML = `<p>2 cups flour</p>`
+        await main(document.body, reciveData)
+        expect(document.body.innerHTML).toEqual('<p>2 cup【4 and 2/3 dl】/【240 g】s flour</p>')
+    })
 })
