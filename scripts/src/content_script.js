@@ -64,7 +64,7 @@ export function SimpleSearch(text){
 export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageInfo){
     for(const [node, matchString] of matchList){
         let match = matchString.match(nonGlobalRegex)
-        containsFlour = node.textContent.includes("flour") && measureType === "volume" 
+        
         // Iterate through each node-matchString pair and split the matchString into the neccessary groups with the match function
         // It is important to utilize a non global regex, that is because the global flag makes the regex carry the lastIndex from which the regex stopped searching
         // That is unfortunate when the same regex is used many times on different strings
@@ -119,9 +119,7 @@ export function SimpleReplace(matchList, measureType, nonGlobalRegex, languageIn
             unitString = result[1]
         }
         let stringToAdd = ""
-        if(containsFlour){
-            stringToAdd = `【${convertedQuantity*0.6}】`
-        }
+        
 
         var windowStart = 0
         var iterations = 0
